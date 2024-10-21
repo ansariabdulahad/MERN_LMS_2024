@@ -1,7 +1,10 @@
 import { config } from 'dotenv';
 import express from 'express';
 import cors from 'cors';
+
 import { mongoDbConnection } from './utils/db.js';
+
+import authRoutes from './routes/auth-routes/index.js';
 
 // dotenv configuration
 config();
@@ -18,6 +21,7 @@ app.use(cors({
 app.use(express.json());
 
 // routers configuration
+app.use('/api/auth', authRoutes);
 
 // error handling
 app.use((err, req, res, next) => {
@@ -25,7 +29,7 @@ app.use((err, req, res, next) => {
     res.status(500).json({
         success: false,
         message: "ERROR FROM SERVER, SOMETHING WENT WRONG!",
-        error: err.stack || err
+        error: err.stack || err.message || err
     });
 });
 
