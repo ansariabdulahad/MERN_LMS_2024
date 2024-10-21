@@ -39,5 +39,3 @@ mongoDbConnection()
     }).catch((err) => {
         console.error(err);
     });
-
-// next time work time stamp :: 30:49 Client side basic pages and routing implementation
