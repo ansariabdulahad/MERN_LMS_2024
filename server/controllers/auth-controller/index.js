@@ -37,4 +37,51 @@ export const registerUser = async (req, res) => {
         console.error("REGISTER USER ERROR ::", error);
         next(error || error.message);
     }
+};
+
+// login user
+export const loginUser = async (req, res) => {
+    try {
+        const { userEmail, password } = req.body;
+
+        // validate inputs
+        if (!userEmail || !password) return res.status(400).json({
+            success: false,
+            message: "All fields (userEmail, password) are required!"
+        });
+
+        // check user existence & password validity
+        const checkUser = await User.findOne({ userEmail });
+
+        if (!checkUser || !(await checkUser.compareHashPassword(password))) return res.status(401).json({
+            success: false,
+            message: "Invalid credentials!"
+        });
+
+        // loggedin the user and send token to client
+        const accessToken = await checkUser.generateAccessToken();
+
+        if (!accessToken) return res.status(500).json({
+            success: false,
+            message: 'Failed to generate access token!'
+        });
+
+        res.status(200).json({
+            success: true,
+            message: 'Logged in successfully!',
+            data: {
+                accessToken,
+                user: {
+                    _id: checkUser._id,
+                    userName: checkUser.userName,
+                    userEmail: checkUser.userEmail,
+                    role: checkUser.role
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error("LOGIN USER ERROR :: ", error);
+        next(error || error.message);
+    }
 }
