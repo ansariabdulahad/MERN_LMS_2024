@@ -9,10 +9,10 @@ import { Link } from 'react-router-dom'
 
 const AuthPage = () => {
 
-    const [activeTab, setActiveTab] = useState("signin");
+    // const [activeTab, setActiveTab] = useState("signin");
     const {
         signUpFormData, setSignUpFormData, signInFormData, setSignInFormData,
-        handleRegisterUser, handleLoginUser
+        handleRegisterUser, handleLoginUser, activeTab, setActiveTab
     } = useContext(AuthContext);
 
     // handle active tab change values

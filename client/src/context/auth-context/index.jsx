@@ -11,6 +11,7 @@ export const AuthProvider = ({ children }) => {
     const [signInFormData, setSignInFormData] = useState(initialSignInFormData);
     const [signUpFormData, setSignUpFormData] = useState(initialSignUpFormData);
     const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState("signin");
     const [auth, setAuth] = useState({
         authenticated: false,
         user: null
@@ -19,18 +20,27 @@ export const AuthProvider = ({ children }) => {
     // handle register the user
     const handleRegisterUser = async (event) => {
         event.preventDefault();
+        const registerBtn = event.target.querySelector('button');
 
         try {
+            registerBtn.innerHTML = "Signin up...";
+            registerBtn.disabled = true;
+
             const response = await registerService(signUpFormData);
             const { success, message } = response;
-            console.log(message);
 
             if (success) {
+                registerBtn.innerHTML = "Sign Up";
+                registerBtn.disabled = false;
                 toast({
                     title: message || 'Signup done successfully, Login now!'
                 });
                 setSignUpFormData(initialSignUpFormData);
+                setActiveTab('signin');
             } else {
+                registerBtn.innerHTML = "Sign Up";
+                registerBtn.disabled = false;
+
                 toast({
                     title: message || 'Signup failed, Try Again!',
                     variant: 'destructive'
@@ -39,6 +49,9 @@ export const AuthProvider = ({ children }) => {
             }
 
         } catch (error) {
+            registerBtn.innerHTML = "Sign Up";
+            registerBtn.disabled = false;
+
             console.error("Error in handleRegisterUser :: ", error.message || error);
             toast({
                 title: error?.response?.data?.message || 'Signup failed, Try Again!',
@@ -51,12 +64,19 @@ export const AuthProvider = ({ children }) => {
     // handle login user
     const handleLoginUser = async (event) => {
         event.preventDefault();
+        const loginBtn = event.target.querySelector('button');
 
         try {
+            loginBtn.innerHTML = "Logging...";
+            loginBtn.disabled = true;
+
             const response = await loginService(signInFormData);
             const { success, data, message } = response;
 
             if (response && success) {
+                loginBtn.innerHTML = "Sign In";
+                loginBtn.disabled = false;
+
                 sessionStorage.setItem('accessToken', JSON.stringify(data.accessToken));
 
                 setAuth({
@@ -70,6 +90,9 @@ export const AuthProvider = ({ children }) => {
                 setSignInFormData(initialSignInFormData);
 
             } else {
+                loginBtn.innerHTML = "Sign In";
+                loginBtn.disabled = false;
+
                 setAuth({
                     authenticated: false,
                     user: null
@@ -81,6 +104,9 @@ export const AuthProvider = ({ children }) => {
                 });
             }
         } catch (error) {
+            loginBtn.innerHTML = "Sign In";
+            loginBtn.disabled = false;
+
             console.error("Error in handleLoginUser :: ", error);
             if (!error?.response?.data?.success) {
                 setAuth({
@@ -146,7 +172,7 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     return <AuthContext.Provider value={{
-        signUpFormData, setSignUpFormData, signInFormData, setSignInFormData,
+        signUpFormData, setSignUpFormData, signInFormData, setSignInFormData, activeTab, setActiveTab,
         handleRegisterUser, handleLoginUser, auth,
         resetCredentials
     }}>

@@ -8,8 +8,16 @@ const StudentViewCommonLayout = () => {
     const { resetCredentials } = useContext(AuthContext);
 
     // handle logout
-    const handleLogout = () => {
+    const handleLogout = (event) => {
+        const logoutBtn = event.target;
+
+        logoutBtn.innerHTML = "Logging out...";
+        logoutBtn.disabled = true;
+
         resetCredentials();
+
+        // logoutBtn.innerHTML = "Logout";
+        // logoutBtn.disabled = false;
     }
 
     return (

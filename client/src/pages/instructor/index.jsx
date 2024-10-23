@@ -35,7 +35,12 @@ const InstructorDashboardPage = () => {
     ];
 
     // handle Logout 
-    const handleLogout = () => {
+    const handleLogout = (event) => {
+        const logoutBtn = event.target;
+
+        logoutBtn.innerHTML = "Logging out...";
+        logoutBtn.disabled = true;
+
         resetCredentials();
     }
 
