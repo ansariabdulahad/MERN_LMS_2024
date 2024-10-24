@@ -43,7 +43,7 @@ const FormControls = ({ formControls = [], formData, setFormData }) => {
                         <SelectValue placeholder={getControlItem.label} />
                     </SelectTrigger>
 
-                    <SelectContent>
+                    <SelectContent className="overflow-y-auto max-h-[200px]">
                         {
                             getControlItem.options && getControlItem.options.length > 0 &&
                             getControlItem.options.map((optionItem) => (

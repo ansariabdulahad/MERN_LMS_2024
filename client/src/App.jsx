@@ -7,6 +7,7 @@ import InstructorDashboardPage from './pages/instructor'
 import StudentHomePage from './pages/student/home'
 import StudentViewCommonLayout from './components/student-view/common-layout'
 import NotFoundPage from './pages/not-found'
+import AddNewCoursePage from './pages/instructor/add-new-course'
 
 const App = () => {
 
@@ -31,6 +32,14 @@ const App = () => {
           authenticated={auth && auth.authenticated}
           user={auth && auth.user}
           element={<InstructorDashboardPage />}
+        />}
+      />
+      <Route
+        path='/instructor/create-new-course'
+        element={<RouteGaurd
+          authenticated={auth && auth.authenticated}
+          user={auth && auth.user}
+          element={<AddNewCoursePage />}
         />}
       />
 
