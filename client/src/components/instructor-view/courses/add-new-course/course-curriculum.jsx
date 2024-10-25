@@ -1,3 +1,4 @@
+import MediaProgressBar from '@/components/media-progress-bar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -5,11 +6,16 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { courseCurriculumInitialFormData } from '@/config';
 import { InstructorContext } from '@/context/instructor-context'
+import { toast } from '@/hooks/use-toast';
+import { mediaUploadService } from '@/services/media-services';
 import React, { useContext } from 'react'
 
 const CourseCurriculum = () => {
 
-    const { courseCurriculumFormData, setCourseCurriculumFormData } = useContext(InstructorContext);
+    const { courseCurriculumFormData, setCourseCurriculumFormData,
+        mediaUploadProgress, setMediaUploadProgress,
+        mediaUploadProgressPercentage, setMediaUploadProgressPercentage
+    } = useContext(InstructorContext);
 
     // handle new Lecture
     const handleNewLecture = () => {
@@ -21,8 +27,72 @@ const CourseCurriculum = () => {
         ]);
     }
 
-    console.log(courseCurriculumFormData);
+    // handle new courses title chnage
+    const handleCourseTitleChange = (event, currentIndex) => {
+        let cpycourseCurriculumFormData = [...courseCurriculumFormData];
 
+        cpycourseCurriculumFormData[currentIndex] = {
+            ...cpycourseCurriculumFormData[currentIndex],
+            title: event.target.value
+        }
+
+        setCourseCurriculumFormData(cpycourseCurriculumFormData);
+    }
+
+    // handle new courses preview chnage
+    const handleFreePreviewChange = (value, currentIndex) => {
+        let cpycourseCurriculumFormData = [...courseCurriculumFormData];
+
+        cpycourseCurriculumFormData[currentIndex] = {
+            ...cpycourseCurriculumFormData[currentIndex],
+            freePreview: value
+        }
+
+        setCourseCurriculumFormData(cpycourseCurriculumFormData);
+    }
+
+    // handle new courses single lecture upload on cloudinary
+    const handleSingleLectureUpload = async (event, currentIndex) => {
+        const selectedFile = event.target.files[0];
+
+        if (selectedFile) {
+            const videoFormData = new FormData();
+            videoFormData.append('file', selectedFile);
+
+            try {
+                setMediaUploadProgress(true);
+
+                const { success, message, data } = await mediaUploadService(videoFormData, setMediaUploadProgressPercentage);
+
+                if (success && data) {
+                    const { public_id, url } = data;
+                    let cpycourseCurriculumFormData = [...courseCurriculumFormData];
+
+                    cpycourseCurriculumFormData[currentIndex] = {
+                        ...cpycourseCurriculumFormData[currentIndex],
+                        videoUrl: url,
+                        public_id
+                    }
+
+                    setCourseCurriculumFormData(cpycourseCurriculumFormData);
+                    setMediaUploadProgress(false);
+                    toast({
+                        title: message || 'Video file uploaded successfully!',
+                    });
+                }
+
+            } catch (error) {
+                setMediaUploadProgress(false);
+                console.error(error);
+                toast({
+                    title: 'Error uploading video file!',
+                    variant: 'destructive'
+                });
+            }
+        }
+    }
+
+    console.log(courseCurriculumFormData);
 
     return (
         <Card>
@@ -34,6 +104,18 @@ const CourseCurriculum = () => {
                 <Button
                     onClick={handleNewLecture}
                 >Add Lecture</Button>
+
+                {
+                    mediaUploadProgress
+                        ? (
+                            <MediaProgressBar
+                                isMediaUploading={mediaUploadProgress}
+                                progress={mediaUploadProgressPercentage}
+                            />
+                        )
+                        : null
+                }
+
                 <div className='mt-4 space-y-4'>
                     {
                         courseCurriculumFormData.map((curriculumItem, index) => (
@@ -47,12 +129,15 @@ const CourseCurriculum = () => {
                                         name={`title-${index + 1}`}
                                         placeholder="Enter lecture title"
                                         className="max-w-96"
+                                        value={courseCurriculumFormData[index].title}
+                                        onChange={(event) => handleCourseTitleChange(event, index)}
                                     />
 
                                     <div className='flex items-center space-x-2'>
                                         <Switch
-                                            checked={true}
+                                            checked={courseCurriculumFormData[index].freePreview}
                                             id={`freePreview-${index + 1}`}
+                                            onCheckedChange={(value) => handleFreePreviewChange(value, index)}
                                         />
                                         <Label
                                             htmlFor={`freePreview-${index}`}
@@ -69,6 +154,7 @@ const CourseCurriculum = () => {
                                         type="file"
                                         accept="video/*"
                                         className="mb-4"
+                                        onChange={(event) => handleSingleLectureUpload(event, index)}
                                     />
                                 </div>
                             </div>

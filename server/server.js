@@ -5,6 +5,7 @@ import cors from 'cors';
 import { mongoDbConnection } from './utils/db.js';
 
 import authRoutes from './routes/auth-routes/index.js';
+import mediaRoutes from './routes/instructor-routes/media-routes.js';
 
 // dotenv configuration
 config();
@@ -22,6 +23,7 @@ app.use(express.json());
 
 // routers configuration
 app.use('/api/auth', authRoutes);
+app.use('/api/media', mediaRoutes);
 
 // error handling
 app.use((err, req, res, next) => {
