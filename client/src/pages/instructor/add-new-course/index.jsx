@@ -21,7 +21,7 @@ const AddNewCoursePage = () => {
 
             <Card className="mt-5">
                 <CardContent>
-                    <div className='container mx-auto p-4'>
+                    <div className='container mx-auto py-4'>
                         <Tabs
                             defaultValue='curriculum'
                             className='space-y-4'
