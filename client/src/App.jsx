@@ -42,6 +42,14 @@ const App = () => {
           element={<AddNewCoursePage />}
         />}
       />
+      <Route
+        path='/instructor/edit-course/:courseId'
+        element={<RouteGaurd
+          authenticated={auth && auth.authenticated}
+          user={auth && auth.user}
+          element={<AddNewCoursePage />}
+        />}
+      />
 
       {/* Student route */}
       <Route

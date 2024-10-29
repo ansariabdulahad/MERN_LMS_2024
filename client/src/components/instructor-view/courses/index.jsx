@@ -1,10 +1,9 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import React from 'react'
+import React, { useContext } from 'react'
 import {
     Table,
     TableBody,
-    TableCaption,
     TableCell,
     TableHead,
     TableHeader,
@@ -12,11 +11,15 @@ import {
 } from "@/components/ui/table"
 import { Delete, Edit } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { InstructorContext } from '@/context/instructor-context'
+import { courseCurriculumInitialFormData, courseLandingInitialFormData } from '@/config'
 
-
-const InstructorCourses = () => {
+const InstructorCourses = ({ listOfCourses }) => {
 
     const navigate = useNavigate();
+    const { setCurrentEditedCourseId, setCourseCurriculumFormData,
+        setCourseLandingFormData
+    } = useContext(InstructorContext);
 
     return (
 
@@ -27,7 +30,12 @@ const InstructorCourses = () => {
                 </CardTitle>
                 <Button
                     className="p-2 sm:p-6 text-wrap"
-                    onClick={() => navigate('/instructor/create-new-course')}
+                    onClick={() => {
+                        setCurrentEditedCourseId(null);
+                        setCourseCurriculumFormData(courseCurriculumInitialFormData);
+                        setCourseLandingFormData(courseLandingInitialFormData);
+                        navigate('/instructor/create-new-course');
+                    }}
                 >
                     Create New Course
                 </Button>
@@ -45,19 +53,29 @@ const InstructorCourses = () => {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            <TableRow>
-                                <TableCell>React JS Full Course 2025</TableCell>
-                                <TableCell>100</TableCell>
-                                <TableCell>$5000</TableCell>
-                                <TableCell className="text-right">
-                                    <Button className="hover:text-green-500" size="sm" variant="ghost">
-                                        <Edit className='h-6 w-6' />
-                                    </Button>
-                                    <Button className="hover:text-red-500" size="sm" variant="ghost">
-                                        <Delete className='h-6 w-6' />
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
+                            {
+                                listOfCourses && listOfCourses.length > 0 ? (
+                                    listOfCourses.map((course) => (
+                                        <TableRow key={course?._id}>
+                                            <TableCell>{course?.title}</TableCell>
+                                            <TableCell>{course?.students?.length}</TableCell>
+                                            <TableCell>{(course?.pricing * course?.students?.length)}</TableCell>
+                                            <TableCell className="text-right">
+                                                <Button
+                                                    onClick={() => {
+                                                        navigate(`/instructor/edit-course/${course?._id}`);
+                                                    }}
+                                                    className="hover:text-green-500" size="sm" variant="ghost">
+                                                    <Edit className='h-6 w-6' />
+                                                </Button>
+                                                <Button className="hover:text-red-500" size="sm" variant="ghost">
+                                                    <Delete className='h-6 w-6' />
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (null)
+                            }
                         </TableBody>
                     </Table>
                 </div>
