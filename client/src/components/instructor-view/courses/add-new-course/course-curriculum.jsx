@@ -221,6 +221,3 @@ const CourseCurriculum = () => {
 }
 
 export default CourseCurriculum
-
-// next time work on backend
-// timestamp :: 5:02
