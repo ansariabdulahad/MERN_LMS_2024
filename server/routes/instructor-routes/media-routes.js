@@ -5,14 +5,29 @@ import { deleteMediaFromCloudinary, uploadMediaTocloudinary } from '../../helper
 import path from 'path';
 
 const router = Router();
-const upload = multer({ dest: 'uploads/' });
+const UPLOAD_DIR = path.resolve('uploads');
+
+if (!fs.existsSync(UPLOAD_DIR)) {
+    fs.mkdirSync(UPLOAD_DIR);
+}
+
+const upload = multer({ dest: UPLOAD_DIR });
+
+// make helper function to clupup files after each upload
+const removeFile = (path) => {
+    try {
+        fs.unlinkSync(path);
+    } catch (error) {
+        console.error(`Error deleting ${path}: `, error);
+    }
+}
 
 router.post('/upload', upload.single('file'), async (req, res) => {
     try {
         const { path } = req.file;
         const result = await uploadMediaTocloudinary(path);
 
-        fs.unlinkSync(path); // remove temporary file
+        removeFile(path); // remove temporary file
 
         res.status(201).json({
             success: true,
@@ -22,7 +37,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
 
     } catch (error) {
         // Ensure temporary file is deleted in case of errors
-        if (req.file) fs.unlinkSync(req.file.path);
+        if (req.file) removeFile(req.file.path);
 
         console.error(error);
         res.status(500).json({
@@ -52,6 +67,29 @@ router.delete('/delete/:id', async (req, res) => {
         res.status(500).json({
             success: false,
             message: "Error deleting file"
+        });
+    }
+});
+
+// bulk upload feature
+router.post('/bulk-upload', upload.array('files', 10), async (req, res) => {
+    try {
+        const uploadPromises = req.files.map((fileItem) => uploadMediaTocloudinary(fileItem.path).finally(() => {
+            removeFile(fileItem.path);
+        }));
+        const result = await Promise.all(uploadPromises);
+
+        res.status(201).json({
+            success: true,
+            message: "All files uploaded successfully!",
+            data: result
+        });
+    } catch (error) {
+        if (req.files) req.files.forEach((fileItem) => removeFile(fileItem.path));
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: "Error uploading bulk files!"
         });
     }
 })
