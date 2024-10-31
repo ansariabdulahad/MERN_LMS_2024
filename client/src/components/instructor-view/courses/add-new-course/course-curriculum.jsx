@@ -10,7 +10,7 @@ import { InstructorContext } from '@/context/instructor-context'
 import { toast } from '@/hooks/use-toast';
 import { mediaBulkUploadService, mediaDeleteService, mediaUploadService } from '@/services/media-services';
 import { Upload } from 'lucide-react';
-import React, { useContext, useRef } from 'react'
+import React, { useContext, useRef, useState } from 'react'
 
 const CourseCurriculum = () => {
 
@@ -20,6 +20,7 @@ const CourseCurriculum = () => {
     } = useContext(InstructorContext);
 
     const bulkUploadInputRef = useRef(null);
+    const [loading, setLoading] = useState(false);
 
     // handle new Lecture
     const handleNewLecture = () => {
@@ -189,6 +190,33 @@ const CourseCurriculum = () => {
 
     }
 
+    // handle delete lectures
+    const handleDeleteLecture = async (currentIndex) => {
+        let cpyCourseCurriculumFormData = [...courseCurriculumFormData];
+        const getCurrentSelectedVideoPublicId = cpyCourseCurriculumFormData[currentIndex].public_id;
+
+        try {
+            setLoading(true);
+            const response = await mediaDeleteService(getCurrentSelectedVideoPublicId);
+
+            if (response?.success) {
+                cpyCourseCurriculumFormData = cpyCourseCurriculumFormData.filter((_, index) => index !== currentIndex);
+                setCourseCurriculumFormData(cpyCourseCurriculumFormData);
+                setLoading(false);
+                toast({
+                    title: "Lecture has been deleted, you can save this course now!",
+                });
+            }
+        } catch (error) {
+            setLoading(false);
+            console.error(error, "Error deleting lecture");
+            toast({
+                title: "Unable to delete lecture, try again!",
+                variant: "destructive"
+            });
+        }
+    }
+
     return (
         <Card>
             <CardHeader className="flex sm:flex-row justify-between">
@@ -279,7 +307,11 @@ const CourseCurriculum = () => {
                                                 >Replace Video</Button>
                                                 <Button
                                                     className="bg-red-900"
-                                                >Delete Lecture</Button>
+                                                    onClick={() => handleDeleteLecture(index)}
+                                                    disabled={loading}
+                                                >
+                                                    {loading ? "Deleting..." : "Delete Lecture"}
+                                                </Button>
                                             </div>
                                         ) : (
                                             <div>
