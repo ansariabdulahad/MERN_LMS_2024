@@ -1,7 +1,7 @@
 import User from '../../models/User.js';
 
 // register user
-export const registerUser = async (req, res) => {
+export const registerUser = async (req, res, next) => {
     try {
         const { userName, userEmail, password, role } = req.body;
 
@@ -40,7 +40,7 @@ export const registerUser = async (req, res) => {
 };
 
 // login user
-export const loginUser = async (req, res) => {
+export const loginUser = async (req, res, next) => {
     try {
         const { userEmail, password } = req.body;
 
