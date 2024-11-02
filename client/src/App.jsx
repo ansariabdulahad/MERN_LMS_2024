@@ -9,6 +9,7 @@ import StudentViewCommonLayout from './components/student-view/common-layout'
 import NotFoundPage from './pages/not-found'
 import AddNewCoursePage from './pages/instructor/add-new-course'
 import StudentViewCoursesPage from './pages/student/courses'
+import StudentViewCourseDetailsPage from './pages/student/course-details'
 
 const App = () => {
 
@@ -64,6 +65,7 @@ const App = () => {
         <Route path='' element={<StudentHomePage />} />
         <Route path='home' element={<StudentHomePage />} />
         <Route path='courses' element={<StudentViewCoursesPage />} />
+        <Route path='course/details/:id' element={<StudentViewCourseDetailsPage />} />
       </Route>
 
       {/* Not found page route */}

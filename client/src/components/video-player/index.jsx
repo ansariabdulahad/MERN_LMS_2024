@@ -12,6 +12,7 @@ const VideoPlayer = ({ url }) => {
     const [seeking, setSeeking] = useState(false);
     const [isFullScreen, setIsFullScreen] = useState(false);
     const [showControls, setShowControls] = useState(true);
+    const [dimensions, setDimensions] = useState({ width: '100%', height: '200px' });
 
     const playerRef = useRef(null);
     const playerContainerRef = useRef(null);
@@ -78,6 +79,26 @@ const VideoPlayer = ({ url }) => {
         controlsTimeoutRef.current = setTimeout(() => setShowControls(false), 3000);
     };
 
+    // set dimension for video player
+    useEffect(() => {
+        const updateDimensions = () => {
+            const width = window.innerWidth;
+            if (width < 640) {
+                setDimensions({ width: '100%', height: '200px' });
+            } else if (width < 768) {
+                setDimensions({ width: '100%', height: '300px' });
+            } else if (width < 1024) {
+                setDimensions({ width: '100%', height: '400px' });
+            } else {
+                setDimensions({ width: '100%', height: '200px' });
+            }
+        };
+
+        updateDimensions();
+        window.addEventListener('resize', updateDimensions);
+        return () => window.removeEventListener('resize', updateDimensions);
+    }, []);
+
     // Detect full-screen changes
     useEffect(() => {
         const handleFullScreenChange = () => {
@@ -99,6 +120,7 @@ const VideoPlayer = ({ url }) => {
                 sm:w-[320px] md:w-[480px] lg:w-[720px] xl:w-[1080px] h-52`}
             onMouseMove={handleMouseMove}
             onMouseLeave={() => setShowControls(false)}
+            style={dimensions}
         >
             <ReactPlayer
                 ref={playerRef}
@@ -128,7 +150,7 @@ const VideoPlayer = ({ url }) => {
                         className="w-full"
                     />
 
-                    <div className="flex items-center justify-between overflow-x-scroll md:overflow-hidden">
+                    <div className="flex items-center justify-between overflow-x-scroll lg:overflow-hidden">
                         <div className="flex items-center space-x-2">
                             <Button
                                 variant="ghost"

@@ -6,6 +6,6 @@ export const fetchStudentViewCourseListService = async (query) => {
 }
 
 export const fetchStudentViewCourseDetailsService = async (courseId) => {
-    const { data } = await axiosInstance.get(`/api/student/course/details/${courseId}`);
+    const { data } = await axiosInstance.get(`/api/student/course/get/details/${courseId}`);
     return data;
 }

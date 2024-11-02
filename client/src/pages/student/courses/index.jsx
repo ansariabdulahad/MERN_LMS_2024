@@ -10,7 +10,7 @@ import { StudentContext } from '@/context/student-context'
 import { fetchStudentViewCourseListService } from '@/services/student-course-services'
 import { ArrowUpDownIcon } from 'lucide-react'
 import React, { useContext, useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 // helper function for searchparams
 const createSearchParamsHelper = (filterParams) => {
@@ -30,11 +30,13 @@ const createSearchParamsHelper = (filterParams) => {
 const StudentViewCoursesPage = () => {
 
     const { studentViewCoursesList, setStudentViewCoursesList,
-        loadingState, setLoadingState
+        loadingState, setLoadingState,
+        setCurrentCourseDetailsId
     } = useContext(StudentContext);
     const [sort, setSort] = useState('price-lowtohigh');
     const [filters, setFilters] = useState({});
     const [searchParams, setSearchParams] = useSearchParams();
+    const navigate = useNavigate();
 
     // handle filtering
     const handleFilterChange = (getSectionId, getCurrentOption) => {
@@ -196,6 +198,10 @@ const StudentViewCoursesPage = () => {
                                     <Card
                                         key={courseItem?._id}
                                         className="cursor-pointer hover:shadow-lg"
+                                        onClick={() => {
+                                            navigate(`/course/details/${courseItem?._id}`);
+                                            setCurrentCourseDetailsId(null);
+                                        }}
                                     >
                                         <CardContent className="flex flex-col sm:flex-row items-center text-center sm:text-start gap-4 p-4">
                                             <div className='w-48 h-32 flex-shrink-0'>
