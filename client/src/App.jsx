@@ -10,6 +10,8 @@ import NotFoundPage from './pages/not-found'
 import AddNewCoursePage from './pages/instructor/add-new-course'
 import StudentViewCoursesPage from './pages/student/courses'
 import StudentViewCourseDetailsPage from './pages/student/course-details'
+import PaypalPaymentReturnPage from './pages/student/payment-return'
+import StudentCoursesPage from './pages/student/student-courses'
 
 const App = () => {
 
@@ -66,6 +68,9 @@ const App = () => {
         <Route path='home' element={<StudentHomePage />} />
         <Route path='courses' element={<StudentViewCoursesPage />} />
         <Route path='course/details/:id' element={<StudentViewCourseDetailsPage />} />
+        <Route path='student-courses' element={<StudentCoursesPage />} />
+        {/* paypal route */}
+        <Route path='payment-return' element={<PaypalPaymentReturnPage />} />
       </Route>
 
       {/* Not found page route */}

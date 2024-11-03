@@ -8,6 +8,7 @@ import authRoutes from './routes/auth-routes/index.js';
 import mediaRoutes from './routes/instructor-routes/media-routes.js';
 import instructorCourseRoutes from './routes/instructor-routes/course-routes.js';
 import studentViewCourseRoutes from './routes/student-routes/course-routes.js';
+import studentViewOrderRoutes from './routes/student-routes/order-routes.js';
 
 // dotenv configuration
 config();
@@ -28,6 +29,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/instructor/course', instructorCourseRoutes);
 app.use('/api/student/course', studentViewCourseRoutes);
+app.use('/api/student/order', studentViewOrderRoutes);
 
 // error handling
 app.use((err, req, res, next) => {

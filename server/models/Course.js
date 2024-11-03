@@ -25,7 +25,8 @@ const CourseSchema = new Schema({
         {
             studentId: String,
             studentName: String,
-            studentEmail: String
+            studentEmail: String,
+            paidAmount: String
         }
     ],
     curriculum: [LectureSchema], // Array of Lecture schemas

@@ -3,9 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import VideoPlayer from '@/components/video-player';
+import { AuthContext } from '@/context/auth-context';
 import { StudentContext } from '@/context/student-context'
 import { toast } from '@/hooks/use-toast';
-import { fetchStudentViewCourseDetailsService } from '@/services/student-course-services';
+import { createPaymentService, fetchStudentViewCourseDetailsService } from '@/services/student-course-services';
 import { CheckCircle, Globe, Loader, Lock, PlayCircle, UsersRoundIcon } from 'lucide-react';
 import React, { useContext, useEffect, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
@@ -16,11 +17,15 @@ const StudentViewCourseDetailsPage = () => {
         currentCourseDetailsId, setCurrentCourseDetailsId,
         loadingState, setLoadingState
     } = useContext(StudentContext);
+    const { auth } = useContext(AuthContext);
+
     const { id } = useParams();
     const location = useLocation();
 
     const [displayCurrentVideoFreePreview, setDisplayCurrentVideoFreePreview] = useState(null);
     const [showFreePreviewDialog, setShowFreePreviewDialog] = useState(false);
+    const [approvalUrl, setApprovalUrl] = useState("");
+    const [paymentLoading, setPaymentLoading] = useState(false);
 
     // fetching current course details
     const fetchStudentViewCourseDetails = async () => {
@@ -53,6 +58,52 @@ const StudentViewCourseDetailsPage = () => {
         setDisplayCurrentVideoFreePreview(getCurrentVideoInfo?.videoUrl);
     }
 
+    // handle creating payment
+    const handleCreatePayment = async () => {
+        const paymentPayload = {
+            userId: auth?.user?._id,
+            userName: auth?.user?.userName,
+            userEmail: auth?.user?.userEmail,
+            orderStatus: 'pending',
+            paymentMethod: 'paypal',
+            paymentStatus: 'initiated',
+            orderDate: new Date(),
+            paymentId: '',
+            payerId: '',
+            instructorId: studentViewCourseDetails?.instructorId,
+            instructorName: studentViewCourseDetails?.instructorName,
+            courseImage: studentViewCourseDetails?.image,
+            courseTitle: studentViewCourseDetails?.title,
+            courseId: studentViewCourseDetails?._id,
+            coursePricing: studentViewCourseDetails?.pricing
+        };
+
+        try {
+            setPaymentLoading(true);
+            const response = await createPaymentService(paymentPayload);
+
+            if (response?.success) {
+                sessionStorage.setItem('currentOrderId', JSON.stringify(response?.data?.orderId));
+                setApprovalUrl(response?.data?.approveUrl);
+                setPaymentLoading(false);
+            } else {
+                setPaymentLoading(false);
+                console.error("Error processing payment request", response?.message);
+                toast({
+                    title: response?.message || "Error processing payment request",
+                    variant: 'destructive'
+                });
+            }
+        } catch (error) {
+            setPaymentLoading(false);
+            console.error(error, "Error processing payment request");
+            toast({
+                title: "Error processing payment request",
+                variant: 'destructive'
+            });
+        }
+    }
+
     useEffect(() => {
         if (displayCurrentVideoFreePreview !== null) setShowFreePreviewDialog(true);
     }, [displayCurrentVideoFreePreview])
@@ -73,6 +124,8 @@ const StudentViewCourseDetailsPage = () => {
     }, [location.pathname]);
 
     if (loadingState) return <div className='flex-1'><Skeleton /> <span>Loading...</span></div>
+
+    if (approvalUrl !== "") return window.location.href = approvalUrl;
 
     return (
         <div className='flex-1 p-4'>
@@ -179,7 +232,12 @@ const StudentViewCourseDetailsPage = () => {
                                 </span>
                             </div>
 
-                            <Button className="w-full">Buy Now</Button>
+                            <Button className="w-full"
+                                onClick={handleCreatePayment}
+                                disabled={paymentLoading}
+                            >
+                                {paymentLoading ? 'Payment Processing...' : 'Buy Now'}
+                            </Button>
                         </CardContent>
                     </Card>
                 </aside>
@@ -206,9 +264,10 @@ const StudentViewCourseDetailsPage = () => {
 
                     <div className='flex flex-col gap-2'>
                         {
-                            studentViewCourseDetails?.curriculum?.filter((item) => item.freePreview).map((filteredItem) => (
+                            studentViewCourseDetails?.curriculum?.filter((item) => item.freePreview).map((filteredItem, index) => (
                                 <div className='flex items-center'
                                     onClick={() => handleSetFreePreview(filteredItem)}
+                                    key={index}
                                 >
                                     <PlayCircle className='mr-2 h-4 w-4 text-green-500 cursor-pointer' />
                                     <p className='cursor-pointer text-[16px] font-medium'>{filteredItem?.title}</p>
