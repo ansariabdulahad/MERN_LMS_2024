@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react'
-import banner from '../../../../public/lms-banner.png';
+import banner from '../../../assets/lms-banner.png';
 import { courseCategories } from '@/config';
 import { Button } from '@/components/ui/button';
 import { StudentContext } from '@/context/student-context';

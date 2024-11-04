@@ -26,7 +26,7 @@ const PaypalPaymentReturnPage = () => {
                         orderId
                     );
 
-                    if (response?.status) {
+                    if (response?.success) {
                         sessionStorage.removeItem('currentOrderId');
                         navigate("/student-courses");
                     } else {

@@ -9,7 +9,7 @@ import { toast } from '@/hooks/use-toast';
 import { createPaymentService, fetchStudentViewCourseDetailsService } from '@/services/student-course-services';
 import { CheckCircle, Globe, Loader, Lock, PlayCircle, UsersRoundIcon } from 'lucide-react';
 import React, { useContext, useEffect, useState } from 'react'
-import { useLocation, useParams } from 'react-router-dom'
+import { Navigate, useLocation, useParams } from 'react-router-dom'
 
 const StudentViewCourseDetailsPage = () => {
 
@@ -26,13 +26,15 @@ const StudentViewCourseDetailsPage = () => {
     const [showFreePreviewDialog, setShowFreePreviewDialog] = useState(false);
     const [approvalUrl, setApprovalUrl] = useState("");
     const [paymentLoading, setPaymentLoading] = useState(false);
+    const [coursePurchasedId, setCoursePurchasedId] = useState(null);
 
     // fetching current course details
     const fetchStudentViewCourseDetails = async () => {
         try {
-            const response = await fetchStudentViewCourseDetailsService(currentCourseDetailsId);
+            const response = await fetchStudentViewCourseDetailsService(currentCourseDetailsId, auth?.user?._id);
 
             if (response?.success) {
+                setCoursePurchasedId(response?.coursePurchasedId);
                 setStudentViewCourseDetails(response?.data);
                 setLoadingState(false);
             }
@@ -41,6 +43,7 @@ const StudentViewCourseDetailsPage = () => {
             console.error(error);
             setStudentViewCourseDetails(null);
             setLoadingState(false);
+            setCoursePurchasedId(null);
             toast({
                 title: "Unable to fetch course details, please check your internet connection!",
                 variant: "destructive"
@@ -120,10 +123,13 @@ const StudentViewCourseDetailsPage = () => {
         if (!location.pathname.includes('course/details')) {
             setStudentViewCourseDetails(null);
             setCurrentCourseDetailsId(null);
+            setCoursePurchasedId(null);
         }
     }, [location.pathname]);
 
     if (loadingState) return <div className='flex-1'><Skeleton /> <span>Loading...</span></div>
+
+    if (coursePurchasedId !== null) return <Navigate to={`/course-progress/${coursePurchasedId}`} />
 
     if (approvalUrl !== "") return window.location.href = approvalUrl;
 

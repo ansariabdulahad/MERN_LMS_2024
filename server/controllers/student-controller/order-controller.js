@@ -79,7 +79,8 @@ export const createOrder = async (req, res) => {
                 });
 
                 await newlyCreatedCourseOrder.save();
-                
+                console.log("Payment Created and proceed to payment approval");
+
                 const approveUrl = paymentInfo.links.find((link) => link.rel == 'approval_url')?.href;
 
                 if (!approveUrl) return res.status(500).json({
@@ -128,7 +129,7 @@ export const capturePaymentAndFinalizeOrder = async (req, res) => {
 
         // update student course model
         const studentCourses = await StudentCourses.findOne({
-            courseId: order.courseId
+            userId: order.userId
         });
 
         if (studentCourses) {
