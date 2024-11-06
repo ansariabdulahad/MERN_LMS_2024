@@ -31,3 +31,8 @@ export const fetchStudentBoughtCoursesService = async (studentId) => {
     const { data } = await axiosInstance.get(`/api/student/courses-bought/get/${studentId}`);
     return data;
 }
+
+export const getCurrentCourseProgressService = async (userId, courseId) => {
+    const { data } = await axiosInstance.get(`/api/student/course-progress/get/${userId}/${courseId}`);
+    return data;
+}

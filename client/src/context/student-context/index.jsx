@@ -9,13 +9,15 @@ export const StudentProvider = ({ children }) => {
     const [studentViewCourseDetails, setStudentViewCourseDetails] = useState(null);
     const [currentCourseDetailsId, setCurrentCourseDetailsId] = useState(null);
     const [studentBoughtCoursesList, setStudentBoughtCoursesList] = useState([]);
+    const [studentCurrentCourseProgress, setStudentCurrentCourseProgress] = useState({});
 
     return <StudentContext.Provider value={{
         studentViewCoursesList, setStudentViewCoursesList,
         loadingState, setLoadingState,
         studentViewCourseDetails, setStudentViewCourseDetails,
         currentCourseDetailsId, setCurrentCourseDetailsId,
-        studentBoughtCoursesList, setStudentBoughtCoursesList
+        studentBoughtCoursesList, setStudentBoughtCoursesList,
+        studentCurrentCourseProgress, setStudentCurrentCourseProgress
     }}>
         {children}
     </StudentContext.Provider>

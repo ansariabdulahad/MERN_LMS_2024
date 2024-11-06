@@ -10,6 +10,7 @@ import instructorCourseRoutes from './routes/instructor-routes/course-routes.js'
 import studentViewCourseRoutes from './routes/student-routes/course-routes.js';
 import studentViewOrderRoutes from './routes/student-routes/order-routes.js';
 import studentCoursesRoutes from './routes/student-routes/student-courses-routes.js';
+import studentCourseProgressRoutes from './routes/student-routes/course-progress-routes.js';
 
 // dotenv configuration
 config();
@@ -32,6 +33,7 @@ app.use('/api/instructor/course', instructorCourseRoutes);
 app.use('/api/student/course', studentViewCourseRoutes);
 app.use('/api/student/order', studentViewOrderRoutes);
 app.use('/api/student/courses-bought', studentCoursesRoutes);
+app.use('/api/student/course-progress', studentCourseProgressRoutes);
 
 // error handling
 app.use((err, req, res, next) => {
