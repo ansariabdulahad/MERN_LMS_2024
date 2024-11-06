@@ -1,9 +1,10 @@
 import { Router } from 'express';
-import { getAllStudentViewCourses, getStudentViewCourseDetails } from '../../controllers/student-controller/course-controller.js';
+import { checkCoursePurchaseInfo, getAllStudentViewCourses, getStudentViewCourseDetails } from '../../controllers/student-controller/course-controller.js';
 
 const router = Router();
 
 router.get('/get', getAllStudentViewCourses);
-router.get('/get/details/:id/:studentId', getStudentViewCourseDetails);
+router.get('/get/details/:id', getStudentViewCourseDetails);
+router.get('/purchase-info/:id/:studentId', checkCoursePurchaseInfo);
 
 export default router;

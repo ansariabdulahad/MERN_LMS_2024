@@ -79,3 +79,14 @@
     @apply bg-background text-foreground;
   }
 }
+
+body::-webkit-scrollbar {
+  @apply w-[5px];
+}
+body::-webkit-scrollbar-track {
+  @apply shadow-[inset_0_0_6px_rgba(0,0,0,0.3)];
+}
+body::-webkit-scrollbar-thumb {
+  @apply bg-[darkgray];
+  outline: 1px solid slategray;
+}

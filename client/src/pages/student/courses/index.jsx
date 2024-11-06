@@ -6,8 +6,10 @@ import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { filterOptions, sortOptions } from '@/config'
+import { AuthContext } from '@/context/auth-context'
 import { StudentContext } from '@/context/student-context'
-import { fetchStudentViewCourseListService } from '@/services/student-course-services'
+import { toast } from '@/hooks/use-toast'
+import { checkCoursePurchaseInfoService, fetchStudentViewCourseListService } from '@/services/student-course-services'
 import { ArrowUpDownIcon } from 'lucide-react'
 import React, { useContext, useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -33,6 +35,8 @@ const StudentViewCoursesPage = () => {
         loadingState, setLoadingState,
         setCurrentCourseDetailsId
     } = useContext(StudentContext);
+    const { auth } = useContext(AuthContext);
+
     const [sort, setSort] = useState('price-lowtohigh');
     const [filters, setFilters] = useState({});
     const [searchParams, setSearchParams] = useSearchParams();
@@ -84,6 +88,27 @@ const StudentViewCoursesPage = () => {
         }
     }
 
+    // handle course navigattion based on purchased on not
+    const handleCourseNavigate = async (getCurrentCourseId) => {
+        const response = await checkCoursePurchaseInfoService(getCurrentCourseId, auth?.user?._id);
+
+        if (response?.success) {
+            setLoadingState(false);
+            if (response?.data) {
+                navigate(`/course-progress/${getCurrentCourseId}`);
+            } else {
+                navigate(`/course/details/${getCurrentCourseId}`);
+            }
+        } else {
+            console.log("Error in handling course navigation");
+            toast({
+                title: response?.message || "Something went wrong, please try again!",
+                variant: "destructive"
+            });
+        }
+
+    }
+
     useEffect(() => {
         const savedFilters = JSON.parse(sessionStorage.getItem('filters')) || {}; // Get saved filters or set empty object
         setFilters(savedFilters);
@@ -109,6 +134,8 @@ const StudentViewCoursesPage = () => {
             sessionStorage.removeItem("filters");
         }
     }, [])
+
+    if (loadingState) return <div className='flex-1'><Skeleton /> <span>Loading...</span></div>
 
     return (
         <div className='flex-1 container mx-auto p-4'>
@@ -198,10 +225,7 @@ const StudentViewCoursesPage = () => {
                                     <Card
                                         key={courseItem?._id}
                                         className="cursor-pointer hover:shadow-lg"
-                                        onClick={() => {
-                                            navigate(`/course/details/${courseItem?._id}`);
-                                            setCurrentCourseDetailsId(null);
-                                        }}
+                                        onClick={() => handleCourseNavigate(courseItem?._id)}
                                     >
                                         <CardContent className="flex flex-col sm:flex-row items-center text-center sm:text-start gap-4 p-4">
                                             <div className='w-48 h-32 flex-shrink-0'>

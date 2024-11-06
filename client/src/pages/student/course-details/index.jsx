@@ -6,10 +6,10 @@ import VideoPlayer from '@/components/video-player';
 import { AuthContext } from '@/context/auth-context';
 import { StudentContext } from '@/context/student-context'
 import { toast } from '@/hooks/use-toast';
-import { createPaymentService, fetchStudentViewCourseDetailsService } from '@/services/student-course-services';
+import { checkCoursePurchaseInfoService, createPaymentService, fetchStudentViewCourseDetailsService } from '@/services/student-course-services';
 import { CheckCircle, Globe, Loader, Lock, PlayCircle, UsersRoundIcon } from 'lucide-react';
 import React, { useContext, useEffect, useState } from 'react'
-import { Navigate, useLocation, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 const StudentViewCourseDetailsPage = () => {
 
@@ -21,20 +21,28 @@ const StudentViewCourseDetailsPage = () => {
 
     const { id } = useParams();
     const location = useLocation();
+    const navigate = useNavigate();
 
     const [displayCurrentVideoFreePreview, setDisplayCurrentVideoFreePreview] = useState(null);
     const [showFreePreviewDialog, setShowFreePreviewDialog] = useState(false);
     const [approvalUrl, setApprovalUrl] = useState("");
     const [paymentLoading, setPaymentLoading] = useState(false);
-    const [coursePurchasedId, setCoursePurchasedId] = useState(null);
 
     // fetching current course details
     const fetchStudentViewCourseDetails = async () => {
         try {
-            const response = await fetchStudentViewCourseDetailsService(currentCourseDetailsId, auth?.user?._id);
+            // check course is already purchased or not
+            const checkCoursePurchaseInfoResponse = await checkCoursePurchaseInfoService(currentCourseDetailsId, auth?.user?._id);
+
+            if (checkCoursePurchaseInfoResponse?.success && checkCoursePurchaseInfoResponse?.data) {
+                navigate(`/course-progress/${currentCourseDetailsId}`);
+                return;
+            }
+
+            // get course details if not purchased
+            const response = await fetchStudentViewCourseDetailsService(currentCourseDetailsId);
 
             if (response?.success) {
-                setCoursePurchasedId(response?.coursePurchasedId);
                 setStudentViewCourseDetails(response?.data);
                 setLoadingState(false);
             }
@@ -43,7 +51,6 @@ const StudentViewCourseDetailsPage = () => {
             console.error(error);
             setStudentViewCourseDetails(null);
             setLoadingState(false);
-            setCoursePurchasedId(null);
             toast({
                 title: "Unable to fetch course details, please check your internet connection!",
                 variant: "destructive"
@@ -123,13 +130,10 @@ const StudentViewCourseDetailsPage = () => {
         if (!location.pathname.includes('course/details')) {
             setStudentViewCourseDetails(null);
             setCurrentCourseDetailsId(null);
-            setCoursePurchasedId(null);
         }
     }, [location.pathname]);
 
     if (loadingState) return <div className='flex-1'><Skeleton /> <span>Loading...</span></div>
-
-    if (coursePurchasedId !== null) return <Navigate to={`/course-progress/${coursePurchasedId}`} />
 
     if (approvalUrl !== "") return window.location.href = approvalUrl;
 

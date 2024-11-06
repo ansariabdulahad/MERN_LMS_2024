@@ -35,8 +35,6 @@ const StudentCoursesPage = () => {
         fetchStudentBoughtCourses();
     }, []);
 
-    console.log(studentBoughtCoursesList);
-
     if (loadingState) return <div className='flex-1'><Skeleton /></div>
 
     return (

@@ -5,8 +5,13 @@ export const fetchStudentViewCourseListService = async (query) => {
     return data;
 }
 
-export const fetchStudentViewCourseDetailsService = async (courseId, studentId) => {
-    const { data } = await axiosInstance.get(`/api/student/course/get/details/${courseId}/${studentId}`);
+export const fetchStudentViewCourseDetailsService = async (courseId) => {
+    const { data } = await axiosInstance.get(`/api/student/course/get/details/${courseId}`);
+    return data;
+}
+
+export const checkCoursePurchaseInfoService = async (courseId, studentId) => {
+    const { data } = await axiosInstance.get(`/api/student/course/purchase-info/${courseId}/${studentId}`);
     return data;
 }
 
