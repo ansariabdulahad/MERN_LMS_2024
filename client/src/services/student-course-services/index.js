@@ -36,3 +36,17 @@ export const getCurrentCourseProgressService = async (userId, courseId) => {
     const { data } = await axiosInstance.get(`/api/student/course-progress/get/${userId}/${courseId}`);
     return data;
 }
+
+export const markLectureAsViewedService = async (userId, courseId, lectureId) => {
+    const { data } = await axiosInstance.post(`/api/student/course-progress/mark-lecture-viewed`,
+        { userId, courseId, lectureId }
+    );
+    return data;
+}
+
+export const resetCourseProgressService = async (userId, courseId) => {
+    const { data } = await axiosInstance.post(`/api/student/course-progress/reset-progress`,
+        { userId, courseId }
+    );
+    return data;
+}

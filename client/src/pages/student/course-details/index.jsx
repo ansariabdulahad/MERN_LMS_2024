@@ -260,8 +260,9 @@ const StudentViewCourseDetailsPage = () => {
                     setShowFreePreviewDialog(false);
                     setDisplayCurrentVideoFreePreview(null);
                 }}
+                className="w-full sm:max-w-md md:max-w-lg lg:max-w-xl"
             >
-                <DialogContent className="sm:w-[800px]">
+                <DialogContent className="sm:w-[800px] max-w-full max-h-screen overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>Course Preview</DialogTitle>
                     </DialogHeader>

@@ -4,7 +4,7 @@ import { Slider } from '../ui/slider';
 import { Button } from '../ui/button';
 import { Fullscreen, Maximize, Minimize, Pause, Play, RotateCcw, RotateCw, Volume2, VolumeX } from 'lucide-react';
 
-const VideoPlayer = ({ url }) => {
+const VideoPlayer = ({ url, onProgressUpdate, progressData }) => {
     const [playing, setPlaying] = useState(false);
     const [volume, setVolume] = useState(0.5);
     const [muted, setMuted] = useState(false);
@@ -90,7 +90,7 @@ const VideoPlayer = ({ url }) => {
             } else if (width < 1024) {
                 setDimensions({ width: '100%', height: '400px' });
             } else {
-                setDimensions({ width: '100%', height: '200px' });
+                setDimensions({ width: '100%', height: '400px' });
             }
         };
 
@@ -108,6 +108,16 @@ const VideoPlayer = ({ url }) => {
         document.addEventListener('fullscreenchange', handleFullScreenChange);
         return () => document.removeEventListener('fullscreenchange', handleFullScreenChange);
     }, []);
+
+    // handle progress upadtes
+    useEffect(() => {
+        if (played === 1) {
+            onProgressUpdate({
+                ...progressData,
+                progressValue: played
+            })
+        }
+    }, [played]);
 
     // Reset play button when video ends
     const handleVideoEnd = () => setPlaying(false);

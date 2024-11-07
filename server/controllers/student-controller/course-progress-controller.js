@@ -5,6 +5,71 @@ import StudentCourses from '../../models/StudentCourses.js';
 // mark current lecture as finished or viewed
 export const markCurrentLectureAsViewed = async (req, res) => {
     try {
+        const { userId, courseId, lectureId } = req.body;
+
+        let progress = await CourseProgress.findOne({ userId, courseId });
+
+        if (!progress) {
+            // new course progress
+            progress = new CourseProgress({
+                userId,
+                courseId,
+                lecturesProgress: [{
+                    lectureId,
+                    viewed: true,
+                    dateViewed: new Date()
+                }]
+            })
+
+            await progress.save();
+        } else {
+            // already existing course progress
+            const lectureProgress = progress.lecturesProgress.find((item) => item.lectureId == lectureId);
+
+            // if course lecture progress exist then update course progress
+            if (lectureProgress) {
+                lectureProgress.viewed = true;
+                lectureProgress.dateViewed = new Date();
+            } else {
+                // or else push new course progress
+                progress.lecturesProgress.push({
+                    lectureId,
+                    viewed: true,
+                    dateViewed: new Date()
+                });
+            }
+
+            await progress.save();
+        }
+
+        // find new course
+        const course = await Course.findById(courseId);
+
+        if (!course) {
+            return res.status(404).json({
+                success: false,
+                message: "Course not found"
+            });
+        }
+
+        // check all the lecture aare viewd or not
+        const allLecturesViewed =
+            progress.lecturesProgress.length === course.curriculum.length &&
+            progress.lecturesProgress.every((item) => item.viewed)
+
+        if (allLecturesViewed) {
+            // then mark the completion
+            progress.completed = true;
+            progress.completionDate = new Date();
+
+            await progress.save();
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Lecture marked as viewed!",
+            data: progress
+        });
 
     } catch (error) {
         console.error(error, "Error while marking current lecture as viewed");
@@ -88,6 +153,29 @@ export const getCurrentCourseProgress = async (req, res) => {
 // reset course progress
 export const resetCurrentCourseProgress = async (req, res) => {
     try {
+        const { userId, courseId } = req.body;
+
+        const progress = await CourseProgress.findOne({ userId, courseId });
+
+        if (!progress) {
+            return res.status(404).json({
+                success: false,
+                message: "Course progress not found!"
+            });
+        }
+
+        // reset course progress
+        progress.lecturesProgress = [];
+        progress.completed = false;
+        progress.completionDate = null;
+
+        await progress.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Course progress has been reset!",
+            data: progress
+        });
 
     } catch (error) {
         console.error(error, "Error reseting course progress");

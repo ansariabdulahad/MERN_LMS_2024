@@ -3,11 +3,20 @@ import banner from '../../../assets/lms-banner.png';
 import { courseCategories } from '@/config';
 import { Button } from '@/components/ui/button';
 import { StudentContext } from '@/context/student-context';
-import { fetchStudentViewCourseListService } from '@/services/student-course-services';
+import { checkCoursePurchaseInfoService, fetchStudentViewCourseListService } from '@/services/student-course-services';
+import { AuthContext } from '@/context/auth-context';
+import { useNavigate } from 'react-router-dom';
+import { toast } from '@/hooks/use-toast';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const StudentHomePage = () => {
 
-    const { studentViewCoursesList, setStudentViewCoursesList } = useContext(StudentContext);
+    const { studentViewCoursesList, setStudentViewCoursesList,
+        loadingState, setLoadingState
+    } = useContext(StudentContext);
+    const { auth } = useContext(AuthContext);
+
+    const navigate = useNavigate();
 
     // fetch all students courses
     const fetchAllStudentViewCourses = async () => {
@@ -22,9 +31,45 @@ const StudentHomePage = () => {
         }
     }
 
+    // handle course navigattion based on purchased on not
+    const handleCourseNavigate = async (getCurrentCourseId) => {
+        const response = await checkCoursePurchaseInfoService(getCurrentCourseId, auth?.user?._id);
+
+        if (response?.success) {
+            setLoadingState(false);
+            if (response?.data) {
+                navigate(`/course-progress/${getCurrentCourseId}`);
+            } else {
+                navigate(`/course/details/${getCurrentCourseId}`);
+            }
+        } else {
+            console.log("Error in handling course navigation");
+            toast({
+                title: response?.message || "Something went wrong, please try again!",
+                variant: "destructive"
+            });
+        }
+
+    }
+
+    // handle navigation on clicking categories
+    const handleNavigateToCoursesPage = (getCurrentId) => {
+        sessionStorage.removeItem("filters");
+
+        const currentFilter = {
+            category: [getCurrentId]
+        }
+
+        sessionStorage.setItem("filters", JSON.stringify(currentFilter));
+
+        navigate(`/courses`);
+    }
+
     useEffect(() => {
         fetchAllStudentViewCourses()
     }, []);
+
+    // if (loadingState) return <div className='flex-1'><Skeleton /> <span>Loading...</span></div>
 
     return (
         <div className='min-h-screen bg-white flex-1'>
@@ -55,6 +100,7 @@ const StudentHomePage = () => {
                                 key={categoryItem.id}
                                 className="justify-start"
                                 variant="outline"
+                                onClick={() => handleNavigateToCoursesPage(categoryItem.id)}
                             >{categoryItem.label}</Button>
                         ))
                     }
@@ -71,6 +117,7 @@ const StudentHomePage = () => {
                                 <div
                                     key={courseItem?._id}
                                     className='border rounded-lg overflow-hidden shadow cursor-pointer bg-white hover:shadow-lg'
+                                    onClick={() => handleCourseNavigate(courseItem?._id)}
                                 >
                                     <img src={courseItem?.image} alt={courseItem?.title}
                                         width={300}
