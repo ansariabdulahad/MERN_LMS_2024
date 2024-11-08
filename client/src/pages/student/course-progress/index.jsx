@@ -93,8 +93,6 @@ const StudentViewCourseProgressPage = () => {
                 );
 
                 if (response?.success) {
-                    console.log(response, "response");
-
                     fetchCurrentCourseProgress();
                 }
             }

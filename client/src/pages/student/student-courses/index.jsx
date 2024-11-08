@@ -27,6 +27,7 @@ const StudentCoursesPage = () => {
                 setStudentBoughtCoursesList(response?.data);
             }
         } catch (error) {
+            setLoadingState(false);
             console.error(error, "Error fetching student bought courses list!");
         }
     }
