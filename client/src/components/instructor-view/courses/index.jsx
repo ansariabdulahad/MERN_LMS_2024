@@ -59,7 +59,7 @@ const InstructorCourses = ({ listOfCourses }) => {
                                         <TableRow key={course?._id}>
                                             <TableCell>{course?.title}</TableCell>
                                             <TableCell>{course?.students?.length}</TableCell>
-                                            <TableCell>{(course?.pricing * course?.students?.length)}</TableCell>
+                                            <TableCell>${(course?.students?.length * course?.pricing)}</TableCell>
                                             <TableCell className="text-right">
                                                 <Button
                                                     onClick={() => {

@@ -129,11 +129,11 @@ const StudentViewCoursesPage = () => {
     //     }
     // }, [filters, sort]);
 
-    useEffect(() => {
-        return () => {
-            sessionStorage.removeItem("filters");
-        }
-    }, [])
+    // useEffect(() => {
+    //     return () => {
+    //         sessionStorage.removeItem("filters");
+    //     }
+    // }, [])
 
     if (loadingState) return <div className='flex-1'><Skeleton /> <span>Loading...</span></div>
 
